@@ -123,9 +123,6 @@ function Header({ onBack }) {
             <button onClick={onBack} className="hover:text-zinc-900">
               Home
             </button>
-            <button onClick={() => { onBack(); setTimeout(() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="hover:text-zinc-900">
-              About
-            </button>
             <button onClick={() => { onBack(); setTimeout(() => document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="hover:text-zinc-900">
               FAQ
             </button>

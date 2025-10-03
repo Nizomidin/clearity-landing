@@ -2,4 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Prevent horizontal overflow on mobile */
+@media (max-width: 767px) {
+  html, body, #root {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+    width: 100vw !important;
+  }
+  
+  /* Hide scrollbars */
+  ::-webkit-scrollbar {
+    display: none !important;
+  }
+  
+  html {
+    scrollbar-width: none !important;
+  }
+  
+  /* Prevent any element from causing overflow */
+  * {
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+  }
+  
+  .mobile-center-laptop {
+    left: 50% !important;
+    right: auto !important;
+    transform: translate(-50%, -50%) !important;
+  }
+  
+  /* Override inline styles on mobile for laptop positioning */
+  .mobile-center-laptop[style*="right"] {
+    right: auto !important;
+  }
+  
+  .mobile-center-laptop[style*="left"] {
+    left: 50% !important;
+  }
+  
+  /* Ensure mobile menu content is visible */
+  nav {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  nav a, nav button {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+}
 
