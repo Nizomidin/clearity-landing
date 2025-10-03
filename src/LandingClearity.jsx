@@ -26,6 +26,21 @@ const lap2 = new URL("./assets/laptops/2.png", import.meta.url).href;
 const lap3 = new URL("./assets/laptops/3.png", import.meta.url).href;
 const lap4 = new URL("./assets/laptops/4.png", import.meta.url).href;
 const lap5 = new URL("./assets/laptops/5.png", import.meta.url).href;
+// mobile laptop images
+const lap1Mob = new URL("./assets/laptops/1-mob.png", import.meta.url).href;
+const lap2Mob = new URL("./assets/laptops/2-mob.png", import.meta.url).href;
+const lap3Mob = new URL("./assets/laptops/3-mob.png", import.meta.url).href;
+const lap4Mob = new URL("./assets/laptops/4-mob.png", import.meta.url).href;
+const lap5Mob = new URL("./assets/laptops/5-mob.png", import.meta.url).href;
+
+// Debug: Log mobile image URLs
+console.log("Mobile image URLs:", {
+  lap1Mob,
+  lap2Mob,
+  lap3Mob,
+  lap4Mob,
+  lap5Mob
+});
 const steps = [
   {
     n: 1,
@@ -34,6 +49,7 @@ const steps = [
     result: "Brain fog turns into visible order.",
     align: "left",
     img: lap1,
+    imgMobile: lap1Mob, // Mobile-optimized image
     imgAlt: "Laptop with voice input",
   },
   {
@@ -43,6 +59,7 @@ const steps = [
     result: "You finally see the bigger picture.",
     align: "right",
     img: lap2,
+    imgMobile: lap2Mob, // Mobile-optimized image
     imgAlt: "Laptop with live map",
   },
   {
@@ -52,6 +69,7 @@ const steps = [
     result: "No overthinking – you know what you decided.",
     align: "left",
     img: lap3,
+    imgMobile: lap3Mob, // Mobile-optimized image
     imgAlt: "Laptop snapshot view",
   },
   {
@@ -61,6 +79,7 @@ const steps = [
     result: "Now you know exactly what you need to do.",
     align: "right",
     img: lap4,
+    imgMobile: lap4Mob, // Mobile-optimized image
     imgAlt: "Laptop with tasks",
   },
   {
@@ -70,6 +89,7 @@ const steps = [
     result: "No lost context — momentum is never broken.",
     align: "left",
     img: lap5,
+    imgMobile: lap5Mob, // Mobile-optimized image
     imgAlt: "Laptop search",
   },
 ];
@@ -469,7 +489,8 @@ function ProblemsTabs() {
                       <p className="text-zinc-800 text-sm md:text-base">"{b.quote}"</p>
                     </Card>
 
-                    <Card className="rounded-[28px] bg-white/80 p-3 md:p-4 ring-1 ring-zinc-200/60 shadow-[0_6px_18px_rgba(36,79,191,0.12)] flex-1 flex flex-col justify-center">
+                    {/* Hide all Reddit ranking boxes on mobile only */}
+                    <Card className={`rounded-[28px] bg-white/80 p-3 md:p-4 ring-1 ring-zinc-200/60 shadow-[0_6px_18px_rgba(36,79,191,0.12)] flex-1 flex flex-col justify-center hidden md:flex`}>
                       <div className="mb-2 flex items-center gap-3">
                         <img
                           src={REDDIT_LOGO}
@@ -572,7 +593,7 @@ function HowItWorks() {
   );
 }
 
-function Step({ n, title, text, result, align, img, imgAlt, delay = 0 }) {
+function Step({ n, title, text, result, align, img, imgMobile, imgAlt, delay = 0 }) {
   const LeftText = (
     <Reveal delay={delay}>
       <div className="p-2 sm:p-4">
@@ -612,14 +633,29 @@ function Step({ n, title, text, result, align, img, imgAlt, delay = 0 }) {
           "h-[200px] sm:h-[280px] md:h-[420px] lg:h-[480px]",
         ].join(" ")}
       >
+        {/* Desktop Image */}
         <img
           src={img || LAPTOP_URL} // <- per-step image, falls back to global
           alt={imgAlt || "Laptop"}
           draggable={false}
           className="absolute top-1/2 -translate-y-1/2 select-none drop-shadow-xl
                    h-[100%] sm:h-[80%] md:h-[80%] lg:h-[120%] w-auto pointer-events-none
-                   left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 mobile-center-laptop"
+                   left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 mobile-center-laptop
+                   hidden md:block"
           style={align === "left" ? { right: "-7%" } : { left: "-7%" }}
+        />
+        
+        {/* Mobile Image */}
+        <img
+          src={imgMobile || img || LAPTOP_URL} // <- mobile image, falls back to desktop image, then global
+          alt={imgAlt || "Laptop"}
+          draggable={false}
+          className="absolute top-1/2 -translate-y-1/2 select-none drop-shadow-xl
+                   h-[120%] sm:h-[100%] w-auto pointer-events-none
+                   left-1/2 -translate-x-1/2 mobile-center-laptop
+                   block md:hidden"
+          onLoad={() => console.log("Mobile image loaded:", imgMobile || img || LAPTOP_URL)}
+          onError={() => console.log("Mobile image failed to load:", imgMobile || img || LAPTOP_URL)}
         />
       </div>
     </Reveal>
