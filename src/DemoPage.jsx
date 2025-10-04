@@ -7,6 +7,19 @@ const COLORS = {
   primaryB: "#244FBF",
 };
 
+// ====== Google Analytics Event Tracking ======
+const trackWaitlistClick = (location) => {
+  // Check if gtag is available (for development)
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', 'waitlist_click', {
+      event_category: 'engagement',
+      event_label: location,
+      value: 1
+    });
+  }
+  console.log(`Waitlist button clicked from: ${location}`);
+};
+
 // ====== Assets ======
 const CLOUDS_URL = "/clouds.png";
 
@@ -43,10 +56,17 @@ function Container({ children, className = "" }) {
   );
 }
 
-function GradientButton({ href, children, className = "", ...props }) {
+function GradientButton({ href, children, className = "", onClick, ...props }) {
+  const handleClick = (e) => {
+    if (onClick) {
+      onClick(e);
+    }
+  };
+
   return (
     <a
       href={href}
+      onClick={handleClick}
       className={`rounded-full px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 ${className}`}
       style={{
         background: `linear-gradient(90deg, ${COLORS.primaryA}, ${COLORS.primaryB})`,
@@ -135,7 +155,10 @@ function Header({ onBack }) {
           </nav>
 
           <div className="hidden items-center gap-3 md:flex">
-          <GradientButton href="https://form.typeform.com/to/pXqr5Phq">
+          <GradientButton 
+            href="https://form.typeform.com/to/pXqr5Phq"
+            onClick={() => trackWaitlistClick('demo_header')}
+          >
             Join the waitlist
           </GradientButton>
           </div>
@@ -193,6 +216,7 @@ export default function DemoPage({ onBack }) {
               <GradientButton
                 className="px-8 py-4 text-lg"
                 href="https://form.typeform.com/to/pXqr5Phq"
+                onClick={() => trackWaitlistClick('demo_main')}
               >
                 Join the waitlist
               </GradientButton>

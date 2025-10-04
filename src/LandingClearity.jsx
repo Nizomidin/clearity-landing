@@ -9,6 +9,19 @@ const COLORS = {
   primaryB: "#244FBF",
 };
 
+// ====== Google Analytics Event Tracking ======
+const trackWaitlistClick = (location) => {
+  // Check if gtag is available (for development)
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', 'waitlist_click', {
+      event_category: 'engagement',
+      event_label: location,
+      value: 1
+    });
+  }
+  console.log(`Waitlist button clicked from: ${location}`);
+};
+
 // ====== Assets ======
 // from /public (served at site root)
 const CLOUDS_URL = "/clouds.png";
@@ -239,7 +252,10 @@ function Header({ onDemo }) {
 
           {/* Desktop CTA Button */}
           <div className="hidden items-center gap-3 md:flex">
-            <GradientButton href="https://form.typeform.com/to/pXqr5Phq">
+            <GradientButton 
+              href="https://form.typeform.com/to/pXqr5Phq"
+              onClick={() => trackWaitlistClick('header_desktop')}
+            >
               Join the waitlist
             </GradientButton>
           </div>
@@ -348,6 +364,7 @@ function Hero({ onDemo }) {
             <GradientButton
               className="px-6 py-3 text-base"
               href="https://form.typeform.com/to/pXqr5Phq"
+              onClick={() => trackWaitlistClick('hero_section')}
             >
               Join the waitlist
             </GradientButton>
@@ -769,6 +786,7 @@ function CallToActionFooter() {
           <GradientButton 
             href="https://form.typeform.com/to/pXqr5Phq"
             className="text-white"
+            onClick={() => trackWaitlistClick('footer_cta')}
           >
             Join the waitlist
           </GradientButton>
