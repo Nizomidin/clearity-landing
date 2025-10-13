@@ -253,7 +253,7 @@ function Header({ onDemo }) {
           {/* Desktop CTA Button */}
           <div className="hidden items-center gap-3 md:flex">
             <GradientButton 
-              href="https://form.typeform.com/to/pXqr5Phq"
+              href="https://clearity-waitlist.vercel.app/"
               onClick={() => trackWaitlistClick('header_desktop')}
             >
               Join the waitlist
@@ -363,7 +363,7 @@ function Hero({ onDemo }) {
             </button>
             <GradientButton
               className="px-6 py-3 text-base"
-              href="https://form.typeform.com/to/pXqr5Phq"
+              href="https://clearity-waitlist.vercel.app/"
               onClick={() => trackWaitlistClick('hero_section')}
             >
               Join the waitlist
@@ -784,7 +784,7 @@ function CallToActionFooter() {
             Feeling overwhelmed?
           </h2>
           <GradientButton 
-            href="https://form.typeform.com/to/pXqr5Phq"
+            href="https://clearity-waitlist.vercel.app/"
             className="text-white"
             onClick={() => trackWaitlistClick('footer_cta')}
           >
