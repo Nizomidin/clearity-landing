@@ -9,6 +9,19 @@ const COLORS = {
   primaryB: "#244FBF",
 };
 
+// ====== Google Analytics Event Tracking ======
+const trackWaitlistClick = (location) => {
+  // Check if gtag is available (for development)
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', 'waitlist_click', {
+      event_category: 'engagement',
+      event_label: location,
+      value: 1
+    });
+  }
+  console.log(`Waitlist button clicked from: ${location}`);
+};
+
 // ====== Assets ======
 // from /public (served at site root)
 const CLOUDS_URL = "/clouds.png";
@@ -26,6 +39,21 @@ const lap2 = new URL("./assets/laptops/2.png", import.meta.url).href;
 const lap3 = new URL("./assets/laptops/3.png", import.meta.url).href;
 const lap4 = new URL("./assets/laptops/4.png", import.meta.url).href;
 const lap5 = new URL("./assets/laptops/5.png", import.meta.url).href;
+// mobile laptop images
+const lap1Mob = new URL("./assets/laptops/1-mob.png", import.meta.url).href;
+const lap2Mob = new URL("./assets/laptops/2-mob.png", import.meta.url).href;
+const lap3Mob = new URL("./assets/laptops/3-mob.png", import.meta.url).href;
+const lap4Mob = new URL("./assets/laptops/4-mob.png", import.meta.url).href;
+const lap5Mob = new URL("./assets/laptops/5-mob.png", import.meta.url).href;
+
+// Debug: Log mobile image URLs
+console.log("Mobile image URLs:", {
+  lap1Mob,
+  lap2Mob,
+  lap3Mob,
+  lap4Mob,
+  lap5Mob
+});
 const steps = [
   {
     n: 1,
@@ -34,6 +62,7 @@ const steps = [
     result: "Brain fog turns into visible order.",
     align: "left",
     img: lap1,
+    imgMobile: lap1Mob, // Mobile-optimized image
     imgAlt: "Laptop with voice input",
   },
   {
@@ -43,6 +72,7 @@ const steps = [
     result: "You finally see the bigger picture.",
     align: "right",
     img: lap2,
+    imgMobile: lap2Mob, // Mobile-optimized image
     imgAlt: "Laptop with live map",
   },
   {
@@ -52,6 +82,7 @@ const steps = [
     result: "No overthinking – you know what you decided.",
     align: "left",
     img: lap3,
+    imgMobile: lap3Mob, // Mobile-optimized image
     imgAlt: "Laptop snapshot view",
   },
   {
@@ -61,6 +92,7 @@ const steps = [
     result: "Now you know exactly what you need to do.",
     align: "right",
     img: lap4,
+    imgMobile: lap4Mob, // Mobile-optimized image
     imgAlt: "Laptop with tasks",
   },
   {
@@ -70,6 +102,7 @@ const steps = [
     result: "No lost context — momentum is never broken.",
     align: "left",
     img: lap5,
+    imgMobile: lap5Mob, // Mobile-optimized image
     imgAlt: "Laptop search",
   },
 ];
@@ -129,7 +162,7 @@ function GlobalCloudBg() {
 
 export default function LandingClearity({ onDemo }) {
   return (
-    <div className="relative min-h-screen bg-transparent text-zinc-900">
+    <div className="relative min-h-screen bg-transparent text-zinc-900 overflow-x-hidden">
       <GlobalCloudBg />
       <Header onDemo={onDemo} />
       <main>
@@ -147,7 +180,7 @@ export default function LandingClearity({ onDemo }) {
 function Container({ children, className = "" }) {
   return (
     <div
-      className={`mx-auto w-full max-w-[1160px] px-4 sm:px-6 lg:px-8 ${className}`}
+      className={`mx-auto w-full max-w-[1160px] px-6 sm:px-6 lg:px-8 ${className}`}
     >
       {children}
     </div>
@@ -156,30 +189,17 @@ function Container({ children, className = "" }) {
 
 function Header({ onDemo }) {
   const [activeSection, setActiveSection] = useState('home');
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      const aboutSection = document.getElementById('about');
       const faqSection = document.getElementById('faq');
       
-      if (aboutSection && faqSection) {
-        const aboutRect = aboutSection.getBoundingClientRect();
+      if (faqSection) {
         const faqRect = faqSection.getBoundingClientRect();
         
-        // Check if FAQ section is in view (more precise detection)
+        // Check if FAQ section is in view
         if (faqRect.top <= 200 && faqRect.bottom >= 200) {
           setActiveSection('faq');
-        } 
-        // Check if About section is in view (but not if FAQ is also in view)
-        else if (aboutRect.top <= 200 && aboutRect.bottom >= 200) {
-          setActiveSection('about');
-        } 
-        // If neither section is properly in view, check which is closer
-        else if (Math.abs(faqRect.top) < Math.abs(aboutRect.top)) {
-          setActiveSection('faq');
-        } else if (aboutRect.top < 300) {
-          setActiveSection('about');
         } else {
           setActiveSection('home');
         }
@@ -192,12 +212,8 @@ function Header({ onDemo }) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu when clicking on a link
-  const handleMobileNavClick = () => {
-    setIsMobileMenuOpen(false);
-  };
   return (
-    <header className="sticky top-0 z-40 border-b border-zinc-200/60 bg-white/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/70">
+    <header className="sticky top-0 z-50 border-b border-zinc-200/60 bg-white/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/70 overflow-x-hidden">
       <Container className="flex h-16 items-center justify-between">
         <a href="#" className="flex items-center gap-2">
           {/* <div
@@ -221,18 +237,6 @@ function Header({ onDemo }) {
           {/* Desktop Navigation */}
           <nav className="hidden items-center gap-8 text-sm text-zinc-700 md:flex">
             <a 
-              className={`hover:text-zinc-900 transition ${activeSection === 'home' ? 'border-b-2 border-[#1940A5] pb-1' : ''}`} 
-              href="#"
-            >
-              Home
-            </a>
-            <a 
-              className={`hover:text-zinc-900 transition ${activeSection === 'about' ? 'border-b-2 border-[#1940A5] pb-1' : ''}`} 
-              href="#about"
-            >
-              About
-            </a>
-            <a 
               className={`hover:text-zinc-900 transition ${activeSection === 'faq' ? 'border-b-2 border-[#1940A5] pb-1' : ''}`} 
               href="#faq"
             >
@@ -248,93 +252,17 @@ function Header({ onDemo }) {
 
           {/* Desktop CTA Button */}
           <div className="hidden items-center gap-3 md:flex">
-            <GradientButton href="https://form.typeform.com/to/pXqr5Phq">
+            <GradientButton 
+              href="https://form.typeform.com/to/pXqr5Phq"
+              onClick={() => trackWaitlistClick('header_desktop')}
+            >
               Join the waitlist
             </GradientButton>
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden flex flex-col items-center justify-center w-8 h-8 space-y-1"
-            aria-label="Toggle mobile menu"
-            aria-expanded={isMobileMenuOpen}
-          >
-            <span 
-              className={`w-6 h-0.5 bg-zinc-700 transition-all duration-300 ${
-                isMobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''
-              }`}
-            />
-            <span 
-              className={`w-6 h-0.5 bg-zinc-700 transition-all duration-300 ${
-                isMobileMenuOpen ? 'opacity-0' : ''
-              }`}
-            />
-            <span 
-              className={`w-6 h-0.5 bg-zinc-700 transition-all duration-300 ${
-                isMobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''
-              }`}
-            />
-          </button>
         </div>
 
-        {/* Mobile Menu Overlay */}
-        {isMobileMenuOpen && (
-          <div className="fixed inset-0 z-50 md:hidden">
-            {/* Backdrop */}
-            <div 
-              className="absolute inset-0 bg-black/20 backdrop-blur-sm"
-              onClick={() => setIsMobileMenuOpen(false)}
-            />
-            
-            {/* Menu Panel */}
-            <div className="absolute top-16 left-0 right-0 bg-white/95 backdrop-blur-md border-b border-zinc-200/60 shadow-lg">
-              <nav className="flex flex-col p-6 space-y-4">
-                <a 
-                  className={`text-lg font-medium py-2 transition ${activeSection === 'home' ? 'text-[#1940A5] border-l-4 border-[#1940A5] pl-4' : 'text-zinc-700 hover:text-zinc-900'}`}
-                  href="#"
-                  onClick={handleMobileNavClick}
-                >
-                  Home
-                </a>
-                <a 
-                  className={`text-lg font-medium py-2 transition ${activeSection === 'about' ? 'text-[#1940A5] border-l-4 border-[#1940A5] pl-4' : 'text-zinc-700 hover:text-zinc-900'}`}
-                  href="#about"
-                  onClick={handleMobileNavClick}
-                >
-                  About
-                </a>
-                <a 
-                  className={`text-lg font-medium py-2 transition ${activeSection === 'faq' ? 'text-[#1940A5] border-l-4 border-[#1940A5] pl-4' : 'text-zinc-700 hover:text-zinc-900'}`}
-                  href="#faq"
-                  onClick={handleMobileNavClick}
-                >
-                  FAQ
-                </a>
-                <button
-                  onClick={() => {
-                    onDemo();
-                    handleMobileNavClick();
-                  }}
-                  className="text-lg font-medium py-2 text-left text-zinc-700 hover:text-zinc-900 transition"
-                >
-                  Demo
-                </button>
-                
-                {/* Mobile CTA Button */}
-                <div className="pt-4 border-t border-zinc-200">
-                  <GradientButton 
-                    href="https://form.typeform.com/to/pXqr5Phq"
-                    className="w-full text-center"
-                    onClick={handleMobileNavClick}
-                  >
-                    Join the waitlist
-                  </GradientButton>
-                </div>
-              </nav>
-            </div>
-          </div>
-        )}
+
       </Container>
     </header>
   );
@@ -402,8 +330,8 @@ function Reveal({ children, className = "", delay = 0 }) {
 // ====== Hero ======
 function Hero({ onDemo }) {
   return (
-    <section className="relative h-[90vh] min-h-[640px] w-full">
-      <div className="mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8 relative z-10 flex h-full flex-col items-center justify-center gap-6 text-center">
+    <section className="relative h-[90vh] min-h-[640px] w-full overflow-x-hidden">
+      <div className="mx-auto w-full max-w-4xl px-6 sm:px-6 lg:px-8 relative z-10 flex h-full flex-col items-center justify-center gap-6 text-center">
         <Reveal delay={50}>
           <p
             className="text-base sm:text-lg md:text-xl font-semibold"
@@ -414,14 +342,14 @@ function Hero({ onDemo }) {
         </Reveal>
         <Reveal delay={150}>
           <h1
-            className="max-w-[1100px] text-5xl sm:text-7xl lg:text-8xl font-extrabold leading-[1.05] tracking-tight"
+            className="max-w-[90vw] sm:max-w-[1100px] text-3xl sm:text-7xl lg:text-8xl font-extrabold leading-[1.05] tracking-tight"
             style={{ color: COLORS.primaryB }}
           >
             Find your Clearity
           </h1>
         </Reveal>
         <Reveal delay={250}>
-          <p className="max-w-[820px] text-lg sm:text-xl md:text-2xl text-zinc-700">
+          <p className="max-w-[90vw] sm:max-w-[820px] text-base sm:text-xl md:text-2xl text-zinc-700">
             Organize your mind → Reduce stress → Get things done
           </p>
         </Reveal>
@@ -436,6 +364,7 @@ function Hero({ onDemo }) {
             <GradientButton
               className="px-6 py-3 text-base"
               href="https://form.typeform.com/to/pXqr5Phq"
+              onClick={() => trackWaitlistClick('hero_section')}
             >
               Join the waitlist
             </GradientButton>
@@ -517,10 +446,10 @@ function ProblemsTabs() {
   }, [index]);
 
   return (
-    <section id="about" className="relative -mt-12 pb-12 pt-10 sm:pt-14">
+    <section id="about" className="relative -mt-12 pb-12 pt-10 sm:pt-14 overflow-x-hidden">
       <Container>
         <Reveal>
-          <h2 className="text-center text-4xl sm:text-6xl font-extrabold tracking-tight text-zinc-900">
+          <h2 className="text-center text-3xl sm:text-6xl font-extrabold tracking-tight text-zinc-900">
             ADHD Mental <br className="hidden sm:block" /> Struggles are Real
           </h2>
         </Reveal>
@@ -570,23 +499,24 @@ function ProblemsTabs() {
             {slides.map((b, i) => (
               <div key={b.key} className="w-full shrink-0 px-0">
                 {/* equal-height row */}
-                <div className="grid items-stretch content-stretch gap-6 md:grid-cols-[1fr_1.15fr]">
+                <div className="grid items-stretch content-stretch gap-6 max-w-[90vw] mx-auto md:max-w-none md:grid-cols-[1fr_1.15fr]">
                   {/* LEFT: quote + reddit */}
-                  <div className="flex h-full flex-col gap-5">
-                    <Card className="rounded-[28px] bg-[#EAF2F9] p-6 md:p-7 shadow-[0_1px_0_rgba(0,0,0,.04)] border-2 border-[#244FBF] flex-shrink-0">
-                      <p className="text-zinc-800">"{b.quote}"</p>
+                  <div className="flex h-full flex-col gap-3 md:gap-4">
+                    <Card className="rounded-[28px] bg-[#EAF2F9] p-3 md:p-5 shadow-[0_1px_0_rgba(0,0,0,.04)] border-2 border-[#244FBF] flex-shrink-0">
+                      <p className="text-zinc-800 text-sm md:text-base">"{b.quote}"</p>
                     </Card>
 
-                    <Card className="rounded-[28px] bg-white/80 p-6 ring-1 ring-zinc-200/60 shadow-[0_6px_18px_rgba(36,79,191,0.12)] flex-1 flex flex-col justify-center">
-                      <div className="mb-3 flex items-center gap-3">
+                    {/* Hide all Reddit ranking boxes on mobile only */}
+                    <Card className={`rounded-[28px] bg-white/80 p-3 md:p-4 ring-1 ring-zinc-200/60 shadow-[0_6px_18px_rgba(36,79,191,0.12)] flex-1 flex flex-col justify-center hidden md:flex`}>
+                      <div className="mb-2 flex items-center gap-3">
                         <img
                           src={REDDIT_LOGO}
                           alt="reddit"
-                          className="h-9 w-auto shrink-0 object-contain md:h-10 lg:h-12"
+                          className="h-6 w-auto shrink-0 object-contain md:h-8 lg:h-10"
                           draggable={false}
                         />
                       </div>
-                      <div className="text-zinc-900 text-xl md:text-[22px] leading-7 md:leading-8 font-medium">
+                      <div className="text-zinc-900 text-sm md:text-lg leading-5 md:leading-6 font-medium">
                         {b.rank}
                       </div>
                     </Card>
@@ -596,7 +526,7 @@ function ProblemsTabs() {
                   <div className="h-full">
                     <Reveal delay={i * 40 + 120} className="h-full">
                       <div
-                        className="flex h-full rounded-[28px] p-8 text-white shadow-md md:p-10 lg:p-12"
+                        className="flex h-full rounded-[28px] p-4 md:p-6 lg:p-8 text-white shadow-md"
                         style={{
                           background: b.panelBg?.startsWith("linear-gradient")
                             ? b.panelBg
@@ -608,22 +538,22 @@ function ProblemsTabs() {
                               : undefined,
                         }}
                       >
-                        <div className="grid h-full w-full grid-cols-[1fr_minmax(170px,175px)] items-center gap-6">
+                        <div className="grid h-full w-full grid-cols-1 md:grid-cols-[1fr_minmax(170px,175px)] items-center gap-4">
                           {/* TEXT */}
                           <div className="relative z-10 self-start">
-                            <h3 className="text-2xl md:text-3xl font-semibold leading-tight md:max-w-[28ch]">
+                            <h3 className="text-lg md:text-xl lg:text-2xl font-semibold leading-tight md:max-w-[28ch]">
                               {b.panelTitle}
                             </h3>
-                            <p className="mt-4 leading-relaxed opacity-95 md:max-w-[52ch]">
+                            <p className="mt-2 md:mt-3 text-sm md:text-base leading-relaxed opacity-95 md:max-w-[52ch]">
                               {b.panelText}
                             </p>
                           </div>
-                          {/* ART pinned right */}
+                          {/* ART pinned right - hidden on mobile */}
                           {b.art && (
                             <img
                               src={b.art}
                               alt={b.artAlt || ""}
-                              className="justify-self-end self-end h-[160px] w-[240px] md:h-[200px] md:w-[280px] lg:h-[400Ypx] lg:w-[480px] object-contain ml-8"
+                              className="hidden md:block justify-self-end self-end h-[120px] w-[180px] md:h-[140px] md:w-[200px] lg:h-[160px] lg:w-[240px] object-contain ml-4"
                               draggable={false}
                             />
                           )}
@@ -643,14 +573,14 @@ function ProblemsTabs() {
               className="rounded-full border border-[#244FBF33] px-3 py-2 text-sm text-[#244FBF] disabled:opacity-40"
               disabled={index === 0}
             >
-              ← Prev
+              ←
             </button>
             <button
               onClick={() => go(index + 1)}
               className="rounded-full border border-[#244FBF33] px-3 py-2 text-sm text-[#244FBF] disabled:opacity-40"
               disabled={index === slides.length - 1}
             >
-              Next →
+              →
             </button>
           </div>
         </div>
@@ -662,10 +592,10 @@ function ProblemsTabs() {
 // ====== How It Works ======
 function HowItWorks() {
   return (
-    <section className="relative mt-8 py-16 sm:py-24">
+    <section className="relative mt-8 py-16 sm:py-24 overflow-x-hidden">
       <Container>
         <Reveal>
-          <h2 className="mb-16 sm:mb-20 text-center text-3xl font-extrabold tracking-tight text-zinc-800 sm:text-5xl">
+          <h2 className="mb-16 sm:mb-20 text-center text-3xl sm:text-5xl font-extrabold tracking-tight text-zinc-800">
             How Clearity Works
           </h2>
         </Reveal>
@@ -680,14 +610,14 @@ function HowItWorks() {
   );
 }
 
-function Step({ n, title, text, result, align, img, imgAlt, delay = 0 }) {
+function Step({ n, title, text, result, align, img, imgMobile, imgAlt, delay = 0 }) {
   const LeftText = (
     <Reveal delay={delay}>
       <div className="p-2 sm:p-4">
-        <div className="flex items-start gap-6">
+        <div className="flex items-center gap-6">
           {/* Step number */}
           <div
-            className="select-none text-6xl sm:text-8xl font-extrabold leading-none text-zinc-900"
+            className="select-none text-3xl sm:text-6xl md:text-8xl font-extrabold leading-none text-zinc-900"
             aria-hidden
           >
             {n}
@@ -698,11 +628,11 @@ function Step({ n, title, text, result, align, img, imgAlt, delay = 0 }) {
               className="absolute left-0 top-1 h-[90%] w-px bg-zinc-300"
               aria-hidden
             />
-            <h3 className="text-6xl sm:text-5xl font-semibold text-zinc-900">
+            <h3 className="text-xl sm:text-4xl md:text-5xl font-semibold text-zinc-900">
               {title}
             </h3>
-            <p className="mt-2 text-zinc-700 max-w-prose">{text}</p>
-            <p className="mt-3 italic text-zinc-600">Result: {result}</p>
+            <p className="mt-2 text-sm sm:text-base md:text-lg text-zinc-700 max-w-prose">{text}</p>
+            <p className="mt-3 text-sm sm:text-base md:text-lg italic text-zinc-600">Result: {result}</p>
           </div>
         </div>
       </div>
@@ -713,20 +643,36 @@ function Step({ n, title, text, result, align, img, imgAlt, delay = 0 }) {
     <Reveal delay={delay + 120}>
       <div
         className={[
-          "relative overflow-visible",
+          "relative overflow-hidden md:overflow-visible",
           align === "left"
-            ? "mr-[-12vw] md:mr-[-16vw] lg:mr-[-20vw]"
-            : "ml-[-12vw] md:ml-[-16vw] lg:ml-[-20vw]",
-          "h-[280px] sm:h-[340px] md:h-[420px] lg:h-[480px]",
+            ? "mr-0 md:mr-[-16vw] lg:mr-[-20vw]"
+            : "ml-0 md:ml-[-16vw] lg:ml-[-20vw]",
+          "h-[200px] sm:h-[280px] md:h-[420px] lg:h-[480px]",
         ].join(" ")}
       >
+        {/* Desktop Image */}
         <img
           src={img || LAPTOP_URL} // <- per-step image, falls back to global
           alt={imgAlt || "Laptop"}
           draggable={false}
           className="absolute top-1/2 -translate-y-1/2 select-none drop-shadow-xl
-                   h-[120%] md:h-[80%] lg:h-[120%] w-auto pointer-events-none"
+                   h-[100%] sm:h-[80%] md:h-[80%] lg:h-[120%] w-auto pointer-events-none
+                   left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 mobile-center-laptop
+                   hidden md:block"
           style={align === "left" ? { right: "-7%" } : { left: "-7%" }}
+        />
+        
+        {/* Mobile Image */}
+        <img
+          src={imgMobile || img || LAPTOP_URL} // <- mobile image, falls back to desktop image, then global
+          alt={imgAlt || "Laptop"}
+          draggable={false}
+          className="absolute top-1/2 -translate-y-1/2 select-none drop-shadow-xl
+                   h-[120%] sm:h-[100%] w-auto pointer-events-none
+                   left-1/2 -translate-x-1/2 mobile-center-laptop
+                   block md:hidden"
+          onLoad={() => console.log("Mobile image loaded:", imgMobile || img || LAPTOP_URL)}
+          onError={() => console.log("Mobile image failed to load:", imgMobile || img || LAPTOP_URL)}
         />
       </div>
     </Reveal>
@@ -736,13 +682,27 @@ function Step({ n, title, text, result, align, img, imgAlt, delay = 0 }) {
     <div className="grid items-center gap-6 sm:gap-10 md:grid-cols-2">
       {align === "left" ? (
         <>
+          <div className="md:contents">
           {LeftText}
+            <div className="md:hidden mt-4">
           {RightImage}
+            </div>
+          </div>
+          <div className="hidden md:block">
+            {RightImage}
+          </div>
         </>
       ) : (
         <>
+          <div className="hidden md:block">
           {RightImage}
+          </div>
+          <div className="md:contents">
           {LeftText}
+            <div className="md:hidden mt-4">
+              {RightImage}
+            </div>
+          </div>
         </>
       )}
     </div>
@@ -779,11 +739,11 @@ function FAQ() {
   ];
 
   return (
-    <section id="faq" className="py-16 sm:py-24">
+    <section id="faq" className="py-16 sm:py-24 overflow-x-hidden">
       <Container>
         <Reveal>
           <h2
-            className="text-center text-3xl font-extrabold tracking-tight sm:text-5xl"
+            className="text-center text-2xl font-extrabold tracking-tight sm:text-5xl"
             style={{ color: COLORS.primaryB }}
           >
             Frequently Asked Questions
@@ -817,15 +777,16 @@ function FAQ() {
 // ====== Call to Action Footer ======
 function CallToActionFooter() {
   return (
-    <section className="bg-black py-8">
-      <div className="mx-auto w-full max-w-lg px-4 sm:px-6 lg:px-8">
+    <section className="bg-black py-8 overflow-x-hidden">
+      <div className="mx-auto w-full max-w-lg px-6 sm:px-6 lg:px-8">
         <div className="text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+          <h2 className="text-2xl md:text-4xl font-bold text-white mb-6">
             Feeling overwhelmed?
           </h2>
           <GradientButton 
             href="https://form.typeform.com/to/pXqr5Phq"
             className="text-white"
+            onClick={() => trackWaitlistClick('footer_cta')}
           >
             Join the waitlist
           </GradientButton>
@@ -838,7 +799,7 @@ function CallToActionFooter() {
 // ====== Footer ======
 function Footer() {
   return (
-    <footer className="border-t border-zinc-200/60 py-10 text-sm text-zinc-600">
+    <footer className="border-t border-zinc-200/60 py-10 text-sm text-zinc-600 overflow-x-hidden">
       <Container className="flex flex-col items-start justify-center gap-4">
         <div className="ml-16">© {new Date().getFullYear()} Clearity</div>
       </Container>
